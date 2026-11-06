@@ -32,13 +32,13 @@
   </tr>
   <tr>
     <td align="center"><img src="screenshots/5_comments.png" width="200" alt="Yorumlar / Comments" /></td>
+    <td align="center"><img src="screenshots/6_saved.png" width="200" alt="Sonra dinle / Listen later" /></td>
     <td align="center"><img src="screenshots/4_stats.png" width="200" alt="İstatistikler / Stats" /></td>
-    <td></td>
   </tr>
   <tr>
     <td align="center"><b>Sesli yorumlar</b><br /><sub>Voice comments</sub></td>
+    <td align="center"><b>Sonra dinle</b><br /><sub>Listen later, offline</sub></td>
     <td align="center"><b>Not istatistikleri</b><br /><sub>Note stats</sub></td>
-    <td></td>
   </tr>
 </table>
 
