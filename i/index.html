@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<meta name="referrer" content="no-referrer">
+<title>HearMe — davet</title>
+<meta property="og:title" content="HearMe'ye davet edildin">
+<meta property="og:description" content="Yakınındaki sesleri dinle, bulunduğun yere bir ses bırak. You're invited to HearMe.">
+<style>
+  :root { --cream:#FFF6E5; --ink:#2B2140; --yellow:#FFD84D; --muted:#625A70; --paper:#FFFEFA; }
+  @media (prefers-color-scheme: dark) {
+    :root { --cream:#1E1828; --ink:#F3ECFF; --muted:#C9BEDA; --paper:#282137; }
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; min-height:100vh; display:flex; align-items:center; justify-content:center;
+    background:var(--cream); color:var(--ink); font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; padding:16px; }
+  main { max-width:420px; width:100%; background:var(--paper); border:3px solid var(--ink); border-radius:24px;
+    box-shadow:0 6px 0 var(--ink); padding:28px 24px; text-align:center; }
+  .logo { width:72px; height:72px; margin:0 auto 12px; background:var(--yellow); border:3px solid var(--ink);
+    border-radius:20px; display:flex; align-items:center; justify-content:center; font-size:34px; }
+  h1 { font-size:24px; margin:8px 0; }
+  p { color:var(--muted); line-height:1.5; margin:8px 0 18px; }
+  ol { text-align:left; color:var(--muted); line-height:1.6; padding-left:22px; }
+  .code { font-size:28px; letter-spacing:4px; font-weight:800; margin:6px 0 14px; }
+  a.button { display:block; padding:14px 18px; border-radius:16px; border:3px solid var(--ink); font-weight:700;
+    text-decoration:none; color:#2B2140; margin:10px 0; min-height:48px; }
+  a.primary { background:var(--yellow); box-shadow:0 4px 0 var(--ink); }
+  a.secondary { background:#fff; }
+  .hidden { display:none; }
+</style>
+</head>
+<body>
+<main>
+  <div class="logo" aria-hidden="true">🎟️</div>
+  <h1>HearMe'ye davet edildin</h1>
+  <p>Yakınındaki sesleri dinle, bulunduğun yere bir ses bırak.<br><span lang="en">You're invited to HearMe: listen to voices around you, leave your own.</span></p>
+  <div id="code" class="code"></div>
+  <a class="button primary" href="https://github.com/MuratAcar00/HearMe-Releases/releases/latest/download/HearMe-arm64.apk">1 · Android uygulamasını indir · Download</a>
+  <a id="open" class="button secondary" href="#">2 · Uygulamada aç ve hesap oluştur · Open the app</a>
+  <ol>
+    <li>Uygulamayı kur. · Install the app.</li>
+    <li>Bu sayfaya dönüp "Uygulamada aç"a dokun. · Come back and tap "Open the app".</li>
+    <li>Hesap oluştur; davet edenle birbirinizi takip edersiniz. · Create an account and you'll follow each other.</li>
+  </ol>
+  <p id="invalid" class="hidden">Davet bağlantısı geçersiz. · This invite link is not valid.</p>
+</main>
+<script>
+  // Yalnız davet kodu okunur; sayfa sunucuya istek atmaz, veri toplamaz.
+  (function () {
+    var code = (new URLSearchParams(location.search).get('c') || '').trim().toUpperCase();
+    var open = document.getElementById('open');
+    if (!/^[A-HJ-NP-Z2-9]{8}$/.test(code)) {
+      open.classList.add('hidden');
+      document.getElementById('invalid').classList.remove('hidden');
+      return;
+    }
+    document.getElementById('code').textContent = code;
+    var scheme = 'com.muratacar.hearme';
+    var fallback = 'https://github.com/MuratAcar00/HearMe-Releases/releases/latest';
+    open.href = /Android/i.test(navigator.userAgent)
+      ? 'intent://invite/' + code + '#Intent;scheme=' + scheme + ';package=' + scheme +
+        ';S.browser_fallback_url=' + encodeURIComponent(fallback) + ';end'
+      : scheme + '://invite/' + code;
+  })();
+</script>
+</body>
+</html>

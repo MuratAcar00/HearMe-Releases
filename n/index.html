@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<meta name="referrer" content="no-referrer">
+<title>HearMe — sesli not</title>
+<meta property="og:title" content="HearMe'de bir sesli not seni bekliyor">
+<meta property="og:description" content="Konuma bırakılmış sesleri dinle. Leave your voice where you are.">
+<style>
+  :root { --cream:#FFF6E5; --ink:#2B2140; --yellow:#FFD84D; --purple:#8B5CF6; --muted:#625A70; --paper:#FFFEFA; }
+  @media (prefers-color-scheme: dark) {
+    :root { --cream:#1E1828; --ink:#F3ECFF; --muted:#C9BEDA; --paper:#282137; }
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; min-height:100vh; display:flex; align-items:center; justify-content:center;
+    background:var(--cream); color:var(--ink); font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; padding:16px; }
+  main { max-width:420px; width:100%; background:var(--paper); border:3px solid var(--ink); border-radius:24px;
+    box-shadow:0 6px 0 var(--ink); padding:28px 24px; text-align:center; }
+  .logo { width:72px; height:72px; margin:0 auto 12px; background:var(--yellow); border:3px solid var(--ink);
+    border-radius:20px; display:flex; align-items:center; justify-content:center; font-size:34px; }
+  h1 { font-size:24px; margin:8px 0; overflow-wrap:anywhere; }
+  p { color:var(--muted); line-height:1.5; margin:8px 0 18px; }
+  .meta { font-size:14px; margin:0 0 14px; }
+  audio { width:100%; margin:4px 0 14px; }
+  a.button { display:block; padding:14px 18px; border-radius:16px; border:3px solid var(--ink); font-weight:700;
+    text-decoration:none; color:#2B2140; margin:10px 0; min-height:48px; }
+  a.primary { background:var(--yellow); box-shadow:0 4px 0 var(--ink); }
+  a.secondary { background:#fff; }
+  small { color:var(--muted); display:block; margin-top:16px; }
+  .hidden { display:none; }
+</style>
+</head>
+<body>
+<main>
+  <div class="logo" aria-hidden="true">🎧</div>
+  <h1 id="title">Sana bir ses bırakıldı</h1>
+  <p id="meta" class="meta hidden"></p>
+  <audio id="player" class="hidden" controls preload="none"></audio>
+  <p id="intro">Bu sesli notu HearMe uygulamasında dinleyebilirsin.<br><span lang="en">Listen to this voice note in the HearMe app.</span></p>
+  <a id="open" class="button primary" href="#">Uygulamada aç · Open in app</a>
+  <a class="button secondary" href="https://github.com/MuratAcar00/HearMe-Releases/releases/latest/download/HearMe-arm64.apk">Android uygulamasını indir · Download</a>
+  <p id="invalid" class="hidden">Bağlantı geçersiz. · This link is not valid.</p>
+  <small>Konum ve kişisel bilgiler bu sayfada gösterilmez. Yorumlar, beğeniler ve diğer sesler uygulamada.<br>
+  <span lang="en">No location or personal details are shown here. Comments, likes and more voices are in the app.</span></small>
+</main>
+<script>
+  // Not kimliği okunur; yayın betiği uç noktayı doldurduysa notun başlığı ve
+  // kısa süreli ses bağlantısı alınır. Çerez, izleme ya da dış kaynak yok.
+  (function () {
+    var endpoint = 'https://uxuuxijxinkfxkcmjxzf.supabase.co/functions/v1/share-note';
+    var id = new URLSearchParams(location.search).get('id') || '';
+    var ok = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(id);
+    var open = document.getElementById('open');
+    if (!ok) {
+      open.classList.add('hidden');
+      document.getElementById('invalid').classList.remove('hidden');
+      return;
+    }
+    id = id.toLowerCase();
+    var scheme = 'com.muratacar.hearme';
+    var fallback = 'https://github.com/MuratAcar00/HearMe-Releases/releases/latest';
+    var android = /Android/i.test(navigator.userAgent);
+    open.href = android
+      ? 'intent://note/' + id + '#Intent;scheme=' + scheme + ';package=' + scheme +
+        ';S.browser_fallback_url=' + encodeURIComponent(fallback) + ';end'
+      : scheme + '://note/' + id;
+    if (endpoint.indexOf('__') === 0 || !window.fetch) return;
+    fetch(endpoint + '?id=' + encodeURIComponent(id), { credentials: 'omit', referrerPolicy: 'no-referrer' })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (note) {
+        if (!note || typeof note.audio_url !== 'string' || note.audio_url.indexOf('https://') !== 0) return;
+        // Metinler textContent ile yazılır; HTML olarak yorumlanmaz.
+        document.getElementById('title').textContent = note.title || 'HearMe';
+        var minutes = Math.floor((note.duration_seconds || 0) / 60);
+        var seconds = String((note.duration_seconds || 0) % 60).padStart(2, '0');
+        var meta = document.getElementById('meta');
+        meta.textContent = '🎙️ ' + (note.author || 'HearMe') + ' · ' + minutes + ':' + seconds;
+        meta.classList.remove('hidden');
+        var player = document.getElementById('player');
+        player.src = note.audio_url;
+        player.classList.remove('hidden');
+        document.getElementById('intro').innerHTML = '';
+        document.getElementById('intro').textContent =
+          'Daha fazla ses için uygulamayı aç. · Open the app for more voices.';
+      })
+      .catch(function () { /* Sayfa uygulamaya yönlendirmeyle çalışmaya devam eder. */ });
+  })();
+</script>
+</body>
+</html>
